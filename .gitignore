@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+sentiment_model/
+sentiment_model_3classes/
+*.zip
+*.safetensors
+config.json
+tokenizer.json
+tokenizer_config.json
+agent_log.json
+.DS_Store

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Review Intelligence</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ddeeff 0%, #c8e0f4 50%, #d8eaf8 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 8px 40px rgba(100,150,200,0.15);
+      margin-bottom: 20px;
+    }
+
+    .card h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #1a2e4a;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #8aaabb;
+      font-size: 0.85rem;
+      font-weight: 300;
+      margin-bottom: 36px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #1a2e4a;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      border: 1.5px solid #d0e4f0;
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: #1a2e4a;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 20px;
+    }
+
+    input:focus { border-color: #1a3a5c; }
+    input::placeholder { color: #b0c8d8; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(180deg, #1e3f6b 0%, #152e50 100%);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .hitl {
+      display: none;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 36px 44px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 8px 40px rgba(100,150,200,0.15);
+      margin-bottom: 20px;
+    }
+
+    .hitl h3 {
+      font-family: 'Playfair Display', serif;
+      color: #1a2e4a;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .hitl p {
+      color: #5a7a90;
+      font-size: 0.88rem;
+      line-height: 1.65;
+      margin-bottom: 22px;
+    }
+
+    .hitl-buttons { display: flex; gap: 10px; }
+
+    .btn-confirm {
+      flex: 1;
+      padding: 13px;
+      background: linear-gradient(180deg, #1e3f6b 0%, #152e50 100%);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-confirm:hover { opacity: 0.88; }
+
+    .btn-cancel {
+      flex: 1;
+      padding: 13px;
+      background: transparent;
+      border: 1.5px solid #d0e4f0;
+      border-radius: 10px;
+      color: #8aaabb;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .loader {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: #8aaabb;
+      font-size: 0.88rem;
+    }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 2px solid #d0e4f0;
+      border-top-color: #1a3a5c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 14px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .result {
+      display: none;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 40px 44px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 8px 40px rgba(100,150,200,0.15);
+    }
+
+    .result h2 {
+      font-family: 'Playfair Display', serif;
+      color: #1a2e4a;
+      font-size: 1.4rem;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e8f0f8;
+    }
+
+    /* ── Stats dashboard ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: #f4f9fd;
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      border: 1px solid #e0eef8;
+    }
+
+    .stat-card .stat-value {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #1a2e4a;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.72rem;
+      color: #8aaabb;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Sentiment bar chart ── */
+    .sentiment-section {
+      margin-bottom: 28px;
+    }
+
+    .sentiment-section h4 {
+      font-family: 'Playfair Display', serif;
+      color: #1a2e4a;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .bar-label {
+      width: 70px;
+      font-size: 0.8rem;
+      color: #5a7a90;
+      text-transform: capitalize;
+      font-weight: 500;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      background: #eaf2f8;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.8s ease;
+    }
+
+    .bar-fill.positive { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+    .bar-fill.neutral  { background: linear-gradient(90deg, #f0c040, #e0a800); }
+    .bar-fill.negative { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+    .bar-count {
+      width: 24px;
+      font-size: 0.8rem;
+      color: #1a2e4a;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    /* ── Dominant badge ── */
+    .dominant-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      margin-bottom: 28px;
+    }
+
+    .dominant-badge.positive { background: #e8faf0; color: #27ae60; }
+    .dominant-badge.neutral  { background: #fef9e7; color: #b8860b; }
+    .dominant-badge.negative { background: #fdf0f0; color: #c0392b; }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ── Avis individuels ── */
+    .reviews-section {
+      margin-bottom: 28px;
+    }
+
+    .reviews-section h4 {
+      font-family: 'Playfair Display', serif;
+      color: #1a2e4a;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+
+    .review-chip {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: #f8fbfe;
+      border: 1px solid #e8f0f8;
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      color: #2a4055;
+      line-height: 1.55;
+    }
+
+    .chip-badge {
+      flex-shrink: 0;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .chip-badge.positive { background: #e8faf0; color: #27ae60; }
+    .chip-badge.neutral  { background: #fef9e7; color: #b8860b; }
+    .chip-badge.negative { background: #fdf0f0; color: #c0392b; }
+
+    /* ── Rapport texte ── */
+    .report-divider {
+      border: none;
+      border-top: 1px solid #e8f0f8;
+      margin: 24px 0;
+    }
+
+    .report {
+      line-height: 1.85;
+      color: #2a4055;
+      font-size: 0.9rem;
+    }
+
+    .report h3 {
+      font-family: 'Playfair Display', serif;
+      color: #1a2e4a;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 28px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e8f0f8;
+    }
+
+    .report p { margin-bottom: 12px; line-height: 1.85; }
+
+    .report ul { padding-left: 20px; margin: 10px 0 16px; }
+    .report li { margin-bottom: 8px; line-height: 1.65; }
+    .report strong { color: #1a2e4a; font-weight: 600; }
+
+    .error {
+      color: #b03030;
+      background: #fdf0f0;
+      border: 1px solid #f0d0d0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>Product Review Intelligence</h1>
+    <label>Produit à analyser</label>
+    <input type="text" id="productInput"/>
+    <button class="btn-primary" id="analyzeBtn" onclick="startAnalysis()">Lancer l'analyse</button>
+  </div>
+
+  <div class="hitl" id="hitlBox">
+    <h3>Validation avant analyse</h3>
+    <p id="hitlText"></p>
+    <div class="hitl-buttons">
+      <button class="btn-confirm" onclick="confirmAnalysis()">Confirmer</button>
+      <button class="btn-cancel" onclick="cancelAnalysis()">Annuler</button>
+    </div>
+  </div>
+
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <p id="loaderText">Lancement de l'analyse...</p>
+  </div>
+
+  <div class="result" id="result">
+    <h2 id="resultTitle"></h2>
+
+    <!-- Stats grid -->
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- Dominant sentiment -->
+    <div id="dominantBadge"></div>
+
+    <!-- Bar chart -->
+    <div class="sentiment-section">
+      <h4>Répartition du sentiment</h4>
+      <div id="barsContainer"></div>
+    </div>
+
+    <!-- Individual reviews -->
+    <div class="reviews-section">
+      <h4>Avis analysés</h4>
+      <div id="reviewsContainer"></div>
+    </div>
+
+    <hr class="report-divider"/>
+
+    <!-- Full report -->
+    <div class="report" id="reportContent"></div>
+  </div>
+
+  <script>
+    let currentProduct = "";
+
+    function startAnalysis() {
+      const input = document.getElementById("productInput").value.trim();
+      if (!input) { alert("Entre un nom de produit."); return; }
+      currentProduct = input;
+      document.getElementById("hitlText").textContent =
+        `Produit sélectionné : "${input}". Le système va récupérer des avis en ligne, analyser le sentiment via DistilBERT et générer un rapport. Confirmer ?`;
+      document.getElementById("hitlBox").style.display = "block";
+      document.getElementById("analyzeBtn").disabled = true;
+      document.getElementById("result").style.display = "none";
+    }
+
+    function confirmAnalysis() {
+      document.getElementById("hitlBox").style.display = "none";
+      document.getElementById("loader").style.display = "block";
+
+      const messages = [
+        "Récupération des avis en ligne...",
+        "Analyse du sentiment via DistilBERT...",
+        "Recherche marché en cours...",
+        "Génération du rapport..."
+      ];
+      let i = 0;
+      const interval = setInterval(() => {
+        i = (i + 1) % messages.length;
+        document.getElementById("loaderText").textContent = messages[i];
+      }, 4000);
+
+      fetch("http://localhost:8000/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product: currentProduct })
+      })
+      .then(r => r.json())
+      .then(data => {
+        clearInterval(interval);
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("analyzeBtn").disabled = false;
+        document.getElementById("result").style.display = "block";
+
+        if (data.status === "success") {
+          document.getElementById("resultTitle").textContent = `Rapport — ${data.product}`;
+
+          // ── Stats dashboard ──────────────────────────────────────────────
+          const stats = data.sentiment_stats || {};
+          const breakdown = stats.breakdown || {};
+          const total = stats.total_reviews || 0;
+          const avgConf = stats.avg_confidence ? Math.round(stats.avg_confidence * 100) : "—";
+          const dominant = stats.dominant_sentiment || "neutral";
+
+          const posCount = breakdown.positive || 0;
+          const neuCount = breakdown.neutral  || 0;
+          const negCount = breakdown.negative || 0;
+
+          const posScore = total > 0 ? Math.round((posCount / total) * 100) : 0;
+
+          document.getElementById("statsGrid").innerHTML = `
+            <div class="stat-card">
+              <div class="stat-value">${total}</div>
+              <div class="stat-label">Avis analysés</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${posScore}%</div>
+              <div class="stat-label">Positifs</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${avgConf}%</div>
+              <div class="stat-label">Confiance moy.</div>
+            </div>
+          `;
+
+          // ── Dominant badge ───────────────────────────────────────────────
+          const dominantLabels = { positive: "Sentiment dominant : Positif ✓", neutral: "Sentiment dominant : Neutre →", negative: "Sentiment dominant : Négatif ✗" };
+          document.getElementById("dominantBadge").innerHTML =
+            `<span class="dominant-badge ${dominant}"><span class="dot"></span>${dominantLabels[dominant] || dominant}</span>`;
+
+          // ── Bars ─────────────────────────────────────────────────────────
+          const barData = [
+            { key: "positive", label: "Positif",  count: posCount },
+            { key: "neutral",  label: "Neutre",   count: neuCount },
+            { key: "negative", label: "Négatif",  count: negCount }
+          ];
+
+          document.getElementById("barsContainer").innerHTML = barData.map(b => {
+            const pct = total > 0 ? Math.round((b.count / total) * 100) : 0;
+            return `
+              <div class="bar-row">
+                <span class="bar-label">${b.label}</span>
+                <div class="bar-track">
+                  <div class="bar-fill ${b.key}" style="width:${pct}%"></div>
+                </div>
+                <span class="bar-count">${b.count}</span>
+              </div>`;
+          }).join("");
+
+          // ── Individual reviews ────────────────────────────────────────────
+          const details = (stats.details || []).slice(0, 6);
+          if (details.length > 0) {
+            document.getElementById("reviewsContainer").innerHTML = details.map(d => `
+              <div class="review-chip">
+                <span class="chip-badge ${d.sentiment}">${d.sentiment}</span>
+                <span>${d.text}</span>
+              </div>`).join("");
+          } else if (data.reviews_analyzed) {
+            document.getElementById("reviewsContainer").innerHTML = data.reviews_analyzed.slice(0, 4).map(r => `
+              <div class="review-chip"><span>${r.slice(0, 160)}…</span></div>`).join("");
+          }
+
+          // ── Report text ───────────────────────────────────────────────────
+          let text = data.report
+            .replace(/The final answer is:/gi, '')
+            .replace(/\$\\boxed\{/g, '')
+            .replace(/\}\$/g, '')
+            .trim();
+
+          text = text.replace(/(\d+\.\s*(Résumé|Sentiment|Marché|Recommandations|Conclusion))/g, '<h3>$1</h3>');
+          text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+          text = text.replace(/^\*\s+(.+)$/gm, '<li>$1</li>');
+          text = text.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
+          text = text.replace(/(<li>.*<\/li>\s*)+/g, '<ul>$&</ul>');
+          text = text.replace(/\n{2,}/g, '</p><p>');
+          text = '<p>' + text + '</p>';
+          text = text.replace(/<p>\s*<\/p>/g, '');
+          text = text.replace(/<p>(<h3>)/g, '$1');
+          text = text.replace(/(<\/h3>)<\/p>/g, '$1');
+
+          document.getElementById("reportContent").innerHTML = text;
+
+        } else {
+          document.getElementById("statsGrid").innerHTML = "";
+          document.getElementById("dominantBadge").innerHTML = "";
+          document.getElementById("barsContainer").innerHTML = "";
+          document.getElementById("reviewsContainer").innerHTML = "";
+          document.getElementById("reportContent").innerHTML =
+            `<div class="error">${data.message}</div>`;
+        }
+      })
+      .catch(() => {
+        clearInterval(interval);
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("analyzeBtn").disabled = false;
+        document.getElementById("result").style.display = "block";
+        document.getElementById("reportContent").innerHTML =
+          `<div class="error">Impossible de contacter le serveur. Vérifie que main.py est lancé.</div>`;
+      });
+    }
+
+    function cancelAnalysis() {
+      document.getElementById("hitlBox").style.display = "none";
+      document.getElementById("analyzeBtn").disabled = false;
+      currentProduct = "";
+    }
+  </script>
+
+</body>
+</html>
