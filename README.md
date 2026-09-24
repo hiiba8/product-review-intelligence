@@ -120,7 +120,6 @@ The sentiment classifier was fine-tuned on a balanced subset of the Amazon Revie
 ├── main.py
 ├── index.html
 ├── Notebook1.ipynb
-├── requirements.txt
 └── README.md
 ```
 
