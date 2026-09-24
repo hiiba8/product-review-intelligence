@@ -1,51 +1,104 @@
 # Product Review Intelligence
 
-Système multi-agents d'analyse de sentiment pour les avis produits.
+A multi-agent system for analyzing product reviews and generating structured market insights.
 
-Entrez un nom de produit → le système collecte des avis en ligne, analyse leur sentiment avec un modèle DistilBERT fine-tuné, et génère un rapport de marché structuré.
+The user enters a product name. The system collects online reviews, analyzes their sentiment using a fine-tuned DistilBERT model, and generates a structured market report.
 
-## Stack
+## Overview
 
-| Composant | Technologie |
-|-----------|-------------|
-| Agents | CrewAI (séquentiel) |
-| LLM | Ollama (local, llama3) |
-| Modèle DL | DistilBERT fine-tuné (73% accuracy, 3 classes) |
-| Backend | FastAPI |
-| Recherche web | SerpApi |
-| Frontend | HTML / CSS / JS |
+The system combines sentiment analysis, web data collection, and multi-agent orchestration into a single pipeline.
 
-## Les trois agents
+### Agents
 
-- **Sentiment Analyst** — classe chaque avis en négatif / neutre / positif via le modèle DistilBERT
-- **Market Researcher** — récupère les avis Google via SerpApi
-- **Report Generator** — rédige un rapport en 5 sections (Résumé, Sentiment, Marché, Recommandations, Conclusion)
+| Agent                 | Role                                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| **Sentiment Analyst** | Classifies reviews as negative, neutral, or positive using a fine-tuned DistilBERT model |
+| **Market Researcher** | Collects product reviews from Google through SerpApi                                     |
+| **Report Generator**  | Combines the collected information into a structured market report                       |
 
-## Lancer le projet
+The generated report contains five sections:
 
-**Prérequis :** Python 3.10+, [Ollama](https://ollama.com) installé avec `llama3`, une clé SerpApi.
+**Summary · Sentiment Analysis · Market Insights · Recommendations · Conclusion**
+
+## Architecture
+
+```text
+Product name
+     │
+     ▼
+Market Researcher
+     │
+     ▼
+Reviews collected through SerpApi
+     │
+     ▼
+Sentiment Analyst
+     │
+     ▼
+DistilBERT sentiment classification
+     │
+     ▼
+Report Generator
+     │
+     ▼
+Structured market report
+```
+
+## Technologies
+
+| Component             | Technology              |
+| --------------------- | ----------------------- |
+| Multi-agent framework | CrewAI                  |
+| LLM                   | Ollama / Llama 3        |
+| Sentiment model       | Fine-tuned DistilBERT   |
+| Web search            | SerpApi                 |
+| Backend               | FastAPI                 |
+| Frontend              | HTML · CSS · JavaScript |
+
+## Sentiment Model
+
+The sentiment classifier was fine-tuned on a balanced subset of the Amazon Reviews dataset.
+
+* **7,461 training examples**
+* **3 sentiment classes**
+* **2 training epochs**
+* **NVIDIA T4 GPU**
+
+### Results
+
+| Class    | F1-score |
+| -------- | -------: |
+| Negative |     0.73 |
+| Neutral  |     0.66 |
+| Positive |     0.82 |
+
+The fine-tuned model is stored in `sentiment_model_3classes/`.
+
+## Running the Project
+
+### Requirements
+
+* Python 3.10+
+* Ollama
+* Llama 3
+* SerpApi API key
+
+### Installation
 
 ```bash
 pip install -r requirements.txt
 ollama pull llama3
+```
+
+Configure your SerpApi API key, then start the FastAPI application:
+
+```bash
 uvicorn main:app --reload
 ```
 
-Ouvrir `index.html` dans le navigateur, taper un nom de produit et cliquer sur **Lancer l'analyse**.
+Open the frontend and enter a product name to start the analysis.
 
-## Modèle
+## Project Context
 
-Entraîné sur Amazon Reviews (7 461 exemples équilibrés, 2 epochs, GPU T4) :
+Developed as part of the Deep Learning course at **UIR ESIN** during the 2025–2026 academic year.
 
-| Classe | F1 |
-|--------|----|
-| Négatif | 0.73 |
-| Neutre | 0.66 |
-| Positif | 0.82 |
-
-Le modèle sauvegardé est dans `sentiment_model_3classes/`.
-
-## Équipe
-
-Aouami Salma · Zineb Arrami · Hiba Arbaoui · Ayyadi Marwa 
-Encadrée par Pr. Hasna El Haji — UIR ESIN, Deep Learning S8 (2025–2026)
