@@ -2,67 +2,106 @@
 
 A multi-agent system for analyzing product reviews and generating structured market insights.
 
-The user enters a product name. The system collects online reviews, analyzes their sentiment using a fine-tuned DistilBERT model, and generates a structured market report.
+Enter a product name, collect online reviews, analyze their sentiment with a fine-tuned DistilBERT model, and generate a structured report.
 
-## Overview
+---
 
-The system combines sentiment analysis, web data collection, and multi-agent orchestration into a single pipeline.
+## How it works
 
-### Agents
+The system is built around three specialized agents:
 
-| Agent                 | Role                                                                                     |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| **Sentiment Analyst** | Classifies reviews as negative, neutral, or positive using a fine-tuned DistilBERT model |
-| **Market Researcher** | Collects product reviews from Google through SerpApi                                     |
-| **Report Generator**  | Combines the collected information into a structured market report                       |
+<table>
+<tr>
+<th>Agent</th>
+<th>Role</th>
+</tr>
+<tr>
+<td><strong>Market Researcher</strong></td>
+<td>Collects product reviews from Google using SerpApi.</td>
+</tr>
+<tr>
+<td><strong>Sentiment Analyst</strong></td>
+<td>Classifies reviews as negative, neutral, or positive using a fine-tuned DistilBERT model.</td>
+</tr>
+<tr>
+<td><strong>Report Generator</strong></td>
+<td>Combines the results into a structured market report.</td>
+</tr>
+</table>
 
-The generated report contains five sections:
+The final report is organized into:
 
-**Summary · Sentiment Analysis · Market Insights · Recommendations · Conclusion**
+**Summary · Sentiment · Market Insights · Recommendations · Conclusion**
+
+---
 
 ## Architecture
 
 ```text
-Product name
-     │
-     ▼
-Market Researcher
-     │
-     ▼
-Reviews collected through SerpApi
-     │
-     ▼
-Sentiment Analyst
-     │
-     ▼
-DistilBERT sentiment classification
-     │
-     ▼
-Report Generator
-     │
-     ▼
-Structured market report
+                    Product name
+                         |
+                         v
+                Market Researcher
+                         |
+                         v
+                  Online reviews
+                         |
+                         v
+                 Sentiment Analyst
+                         |
+                         v
+                Fine-tuned DistilBERT
+                         |
+                         v
+                 Report Generator
+                         |
+                         v
+                Market Report
 ```
 
-## Technologies
+---
 
-| Component             | Technology              |
-| --------------------- | ----------------------- |
-| Multi-agent framework | CrewAI                  |
-| LLM                   | Ollama / Llama 3        |
-| Sentiment model       | Fine-tuned DistilBERT   |
-| Web search            | SerpApi                 |
-| Backend               | FastAPI                 |
-| Frontend              | HTML · CSS · JavaScript |
+## Technology Stack
+
+<table>
+<tr>
+<td><strong>Multi-agent system</strong></td>
+<td>CrewAI</td>
+</tr>
+<tr>
+<td><strong>Language model</strong></td>
+<td>Ollama · Llama 3</td>
+</tr>
+<tr>
+<td><strong>Sentiment analysis</strong></td>
+<td>DistilBERT · Hugging Face</td>
+</tr>
+<tr>
+<td><strong>Web search</strong></td>
+<td>SerpApi</td>
+</tr>
+<tr>
+<td><strong>Backend</strong></td>
+<td>FastAPI</td>
+</tr>
+<tr>
+<td><strong>Frontend</strong></td>
+<td>HTML · CSS · JavaScript</td>
+</tr>
+</table>
+
+---
 
 ## Sentiment Model
 
 The sentiment classifier was fine-tuned on a balanced subset of the Amazon Reviews dataset.
 
-* **7,461 training examples**
-* **3 sentiment classes**
-* **2 training epochs**
-* **NVIDIA T4 GPU**
+**Training setup**
+
+* 7,461 examples
+* 3 sentiment classes
+* 2 epochs
+* NVIDIA T4 GPU
 
 ### Results
 
@@ -72,15 +111,27 @@ The sentiment classifier was fine-tuned on a balanced subset of the Amazon Revie
 | Neutral  |     0.66 |
 | Positive |     0.82 |
 
-The fine-tuned model is stored in `sentiment_model_3classes/`.
+---
 
-## Running the Project
+## Project Structure
+
+```text
+.
+├── main.py
+├── index.html
+├── Notebook1.ipynb
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Run locally
 
 ### Requirements
 
 * Python 3.10+
-* Ollama
-* Llama 3
+* Ollama with Llama 3
 * SerpApi API key
 
 ### Installation
@@ -90,15 +141,16 @@ pip install -r requirements.txt
 ollama pull llama3
 ```
 
-Configure your SerpApi API key, then start the FastAPI application:
+Configure your SerpApi API key and start the application:
 
 ```bash
 uvicorn main:app --reload
 ```
 
-Open the frontend and enter a product name to start the analysis.
+Then open the frontend and enter a product name to start the analysis.
 
-## Project Context
+---
 
-Developed as part of the Deep Learning course at **UIR ESIN** during the 2025–2026 academic year.
+## Academic Project
 
+Developed as part of the Deep Learning course at UIR ESIN, 2025–2026.
